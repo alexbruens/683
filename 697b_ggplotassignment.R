@@ -49,22 +49,15 @@ require(ciTools)
 #table(repressmodeldata$csrepress.r, repressmodeldata$vic)
 
 # DV : csrepress.r.2fac, where 1=repression
-# IV : vic, where 1=settlement
+# IV : vic.r , where 1=settlement, 0= other victory
 # only if peacefailure != 1
 # peacefailure = 0 when there is no peacefailure, then peacefailure =1 and the observations end
 
 ##### model ####
 
-model1<-glm(csrepress.r.2fac~1, data=repressmodeldata, family=binomial("logit"))
-summary(model1)
-exp(model1$coefficients)
-
-hitmiss(model1)
-
 model2<-glm(csrepress.r.2fac~vic.r, data=repressmodeldata, family=binomial("logit"))
 summary(model2)
 hitmiss(model2)
-
 
 vcov(model2)
 coef(model2)
@@ -80,33 +73,11 @@ m2plotd
 
 ggplot(m2plotd, aes(x=vic.r, y=pred_mean, ymax=pred_ub, ymin=pred_lb))+
   geom_line(colour="red", alpha=1)+
-  labs(title="Prob of Repression by Settlement")+
-  xlab("Settlement")+
+  labs(title="Prob of Repression by Termination")+
+  xlab("Termination; 1=negotiated settlement")+
   ylab("Probability of Repression") +
   geom_ribbon(alpha=0.15)
 
-
-#####
-
-m5<-glm(csrepress.r~nego_settl, data=repressmodeldata, family=binomial("logit"))
-summary(m5)
-hitmiss(m5)
-
-pred.mvrnorm5 <- mvrnorm(100, coef(m5), vcov(m5))
-nd <- cbind(1, nego_settl=0)
-mean5=pred.mvrnorm5 %*% t(nd) %>% plogis() %>% apply(1,mean)
-
-nd2 <- cbind(1, nego_settl=1)
-mean52=pred.mvrnorm5 %*% t(nd) %>% plogis() %>% apply(1,mean)
-
-plot(seq(0,1), mean5, type="l")
-
-ggplot(m2plotd, aes(x=vic.r, y=pred_mean, ymax=pred_ub, ymin=pred_lb))+
-  geom_line(colour="red", alpha=1)+
-  labs(title="Prob of Repression by Settlement")+
-  xlab("Settlement")+
-  ylab("Probability of Repression") +
-  geom_ribbon(alpha=0.15)
 
 
 ##### ggplot####

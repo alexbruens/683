@@ -1,74 +1,58 @@
 # 697B
+# GGplot assignment
+# Alex Bruens
 
 library(foreign)
-library(Amelia)
-library(MASS)
-library(effects)
 library(car)
-library(sjPlot)
-library(sjmisc)
-library(sjlabelled)
-library(psych)
 library(ggplot2)
-library(anytime)
 
 library(dplyr)
 library(pscl)
 library(lmtest)
-install.packages("tidymv")
 library(tidymv)
-
-install.packages("ggiraph")
-require(ggiraph)
-install.packages("ggiraphExtra")
-require(ggiraphExtra)
-require(plyr)
-install.packages("ciTools")
 require(ciTools)
+#####
+# csrepression <- read.dta('newfinaldata_statav12.dta')
+#csrepression$poptotal <- csrepression$SPPOPTOTL
+#csrepression$poplog <- log(csrepression$SPPOPTOTL)
+#csrepression$csrepress_BIRT <- csrepression$v2csreprss
+#is.factor(csrepression$v2csreprss_ord)
+#summary(csrepression$v2csreprss_ord)
+#csrepression$csrepress.r <- factor(csrepression$v2csreprss_ord,
+#                                   labels= c("Severe", "Substantial", "Moderate", "Weak", "None"),
+#                                   ordered = TRUE)
+#csrepression$csrepress.r <- car::recode(csrepression$v2csreprss_ord, "0=4; 1=3; 2=2;3=1;4=0;NA=NA")
+#table(csrepression$csrepress.r)
 
-csrepression <- read.dta('newfinaldata_statav12.dta')
+#csrepression$csrepress.r <- factor(csrepression$csrepress.r,
+#                                   labels= c("None", "Weak", "Moderate", "Substantial", "Severe"),
+#                                   ordered = TRUE)
+#csrepression$csrepress.r.2fac <- car::recode(csrepression$csrepress.r, "4=1;3=1;2=1;5=1;0=0;NA=NA")
+#csrepression$csrepress.r.2fac.numeric <- as.numeric(csrepression$csrepress.r.2fac)
 
-csrepression$poptotal <- csrepression$SPPOPTOTL
-csrepression$poplog <- log(csrepression$SPPOPTOTL)
+#table(csrepression$gov_v)
+#table(csrepression$rebel_v)
+#table(csrepression$nego_settl)
+#repressmodeldata <- subset(csrepression, peacefailure != 1 | NA,
+#                           select =c(csrepress.r, csrepress.r.2fac, csrepress.r.2fac.numeric, polity2, logpop, physint_lagged, wardur,
+#                                     pts_s_lagged, pts_h_lagged, pts_a_lagged, physint, logbattledeath,
+#                                     v2csreprss, v2csreprss_ord, pko, nego_settl, rebel_v, gov_v, gdplag,
+#                                     pop, polity2, peace_agreement, battledeath, peacefailure, country,
+#                                     year, pko, poptotal, poplog, csrepress_BIRT))
 
-csrepression$csrepress_BIRT <- csrepression$v2csreprss
-is.factor(csrepression$v2csreprss_ord)
-summary(csrepression$v2csreprss_ord)
-csrepression$csrepress.r <- factor(csrepression$v2csreprss_ord,
-                                   labels= c("Severe", "Substantial", "Moderate", "Weak", "None"),
-                                   ordered = TRUE)
-csrepression$csrepress.r <- recode(csrepression$v2csreprss_ord, "0=4; 1=3; 2=2;3=1;4=0;NA=NA")
-table(csrepression$csrepress.r)
+#repressmodeldata$vic <- 0
+#repressmodeldata$vic <- as.numeric(repressmodeldata$rebel_v + repressmodeldata$gov_v)
+#repressmodeldata$vic.r <- car::recode(repressmodeldata$vic, "0=1; 1=0; NA=NA")
+#table(repressmodeldata$vic.r)
 
-csrepression$csrepress.r <- factor(csrepression$csrepress.r,
-                                   labels= c("None", "Weak", "Moderate", "Substantial", "Severe"),
-                                   ordered = TRUE)
-csrepression$csrepress.r.2fac <- recode(csrepression$csrepress.r, "4=1;3=1;2=1;5=1;0=0;NA=NA")
-csrepression$csrepress.r.2fac.numeric <- as.numeric(csrepression$csrepress.r.2fac)
-
-table(csrepression$gov_v)
-table(csrepression$rebel_v)
-table(csrepression$nego_settl)
-repressmodeldata <- subset(csrepression, peacefailure != 1 | NA,
-                           select =c(csrepress.r, csrepress.r.2fac, csrepress.r.2fac.numeric, polity2, logpop, physint_lagged, wardur,
-                                     pts_s_lagged, pts_h_lagged, pts_a_lagged, physint, logbattledeath,
-                                     v2csreprss, v2csreprss_ord, pko, nego_settl, rebel_v, gov_v, gdplag,
-                                     pop, polity2, peace_agreement, battledeath, peacefailure, country,
-                                     year, pko, poptotal, poplog, csrepress_BIRT))
-
-table(repressmodeldata$csrepress.r, repressmodeldata$vic)
+#table(repressmodeldata$csrepress.r, repressmodeldata$vic)
 
 # DV : csrepress.r.2fac, where 1=repression
 # IV : vic, where 1=settlement
 # only if peacefailure != 1
 # peacefailure = 0 when there is no peacefailure, then peacefailure =1 and the observations end
 
-repressmodeldata$vic <- 0
-repressmodeldata$vic <- as.numeric(repressmodeldata$rebel_v + repressmodeldata$gov_v)
-repressmodeldata$vic.r <- car::recode(repressmodeldata$vic, "0=1; 1=0; NA=NA")
-table(repressmodeldata$vic.r)
-
-## model
+##### model ####
 
 model1<-glm(csrepress.r.2fac~1, data=repressmodeldata, family=binomial("logit"))
 summary(model1)
@@ -97,7 +81,7 @@ plot_m2 <- ggplot(plot.data, aes(x=x, y=y), ymax=1)+
 plot_m2
 
 
-# From Chris
+#### From Chris ####
 
 nd <-cbind(1, seq(0,1, by=1))
 nd %*% coef(model2) %>% plogis()

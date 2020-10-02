@@ -67,17 +67,17 @@ hitmiss(model2)
 ## ggplot
 
 nd <- data.frame(vic.r=seq(from=0,to=1,by=0.01))
-mod2_p <- predict(model2, nd) %>% plogis()
+mod2_p <- predict(model2, nd) %>% pnorm()
 plot.data<-data.frame(x=nd[,1],y=mod2_p)
 lb_mod2 <- add_ci(nd, model2)[,3] # from ciTools
 ub_mod2 <- add_ci(nd,model2)[,4]
 
-plot_m2 <- ggplot(plot.data, aes(x=x, y=y), ymax=1)+
+plot_m2 <- ggplot2::ggplot(plot.data, ggplot2::aes(x=x, y=y), ymax=1)+
   geom_line(colour="black", alpha=1)+
   labs(title="Prob of Repression by Settlement")+
   xlab("Settlement")+
   ylab("Probability of Repression") +
-  geom_ribbon(fill= "green", alpha=0.15, aes(ymin=lb_mod2, ymax=ub_mod2))
+  geom_ribbon(fill= "green", alpha=0.15, ggplot2::aes(ymin=lb_mod2, ymax=ub_mod2))
 plot_m2
 
 

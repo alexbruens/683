@@ -70,7 +70,7 @@ vcov(model2)
 coef(model2)
 
 pred.mvrnorm <- mvrnorm(1000, coef(model2), vcov(model2))
-nd <- cbind(1, vic.r=seq(from=0,to=1,by=0.001))
+nd <- cbind(1, vic.r=seq(from=0,to=1,by=0.01))
 pred_mean <- pred.mvrnorm %*% t(nd) %>% pnorm() %>% apply(2, mean)
 pred_lb <- pred.mvrnorm %*% t(nd) %>% pnorm() %>% apply(2, quantile, 0.025) #pnorm to make it probabilities
 pred_ub <- pred.mvrnorm %*% t(nd) %>% pnorm() %>% apply(2, quantile, 0.975)
@@ -84,6 +84,7 @@ ggplot(m2plotd, aes(x=vic.r, y=pred_mean, ymax=pred_ub, ymin=pred_lb))+
   xlab("Settlement")+
   ylab("Probability of Repression") +
   geom_ribbon(alpha=0.15)
+
 
 #####
 

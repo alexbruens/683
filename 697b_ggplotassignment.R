@@ -6,6 +6,7 @@ library(foreign)
 library(car)
 library(ggplot2)
 
+library(MASS)
 library(dplyr)
 library(pscl)
 library(lmtest)
@@ -64,22 +65,42 @@ model2<-glm(csrepress.r.2fac~vic.r, data=repressmodeldata, family=binomial("logi
 summary(model2)
 hitmiss(model2)
 
+
+vcov(model2)
+coef(model2)
+
+pred.mvrnorm <- mvrnorm(1000, coef(model2), vcov(model2))
+nd <- cbind(1, vic.r=seq(from=0,to=1,by=0.01))
+pred_mean <- pred.mvrnorm %*% t(nd) %>% pnorm() %>% apply(2, mean)
+pred_lb <- pred.mvrnorm %*% t(nd) %>% pnorm() %>% apply(2, quantile, 0.025) #pnorm to make it probabilities
+pred_ub <- pred.mvrnorm %*% t(nd) %>% pnorm() %>% apply(2, quantile, 0.975)
+
+m2plotd <- data.frame(pred_mean, pred_lb, pred_ub, vic.r=seq(from=0,to=1,by=0.01))
+m2plotd
+
+ggplot(m2plotd, aes(x=vic.r, y=pred_mean, ymax=pred_ub, ymin=pred_lb))+
+  geom_line(colour="red", alpha=1)+
+  labs(title="Prob of Repression by Settlement")+
+  xlab("Settlement")+
+  ylab("Probability of Repression") +
+  geom_ribbon(alpha=0.15)
+
+
 ## ggplot
 
 nd <- data.frame(vic.r=seq(from=0,to=1,by=0.01))
-mod2_p <- predict(model2, nd) %>% pnorm()
+mod2_p <- predict(model2, nd) %>% plogis()
 plot.data<-data.frame(x=nd[,1],y=mod2_p)
 lb_mod2 <- add_ci(nd, model2)[,3] # from ciTools
 ub_mod2 <- add_ci(nd,model2)[,4]
 
-plot_m2 <- ggplot2::ggplot(plot.data, ggplot2::aes(x=x, y=y), ymax=1)+
+plot_m2 <- ggplot(plot.data, aes(x=x, y=y), ymax=1)+
   geom_line(colour="black", alpha=1)+
   labs(title="Prob of Repression by Settlement")+
   xlab("Settlement")+
   ylab("Probability of Repression") +
-  geom_ribbon(fill= "green", alpha=0.15, ggplot2::aes(ymin=lb_mod2, ymax=ub_mod2))
+  geom_ribbon(fill= "green", alpha=0.15, aes(ymin=lb_mod2, ymax=ub_mod2))
 plot_m2
-
 
 #### From Chris ####
 

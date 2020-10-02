@@ -65,7 +65,6 @@ model2<-glm(csrepress.r.2fac~vic.r, data=repressmodeldata, family=binomial("logi
 summary(model2)
 hitmiss(model2)
 
-
 vcov(model2)
 coef(model2)
 
@@ -80,8 +79,8 @@ m2plotd
 
 ggplot(m2plotd, aes(x=vic.r, y=pred_mean, ymax=pred_ub, ymin=pred_lb))+
   geom_line(colour="red", alpha=1)+
-  labs(title="Prob of Repression by Settlement")+
-  xlab("Settlement")+
+  labs(title="Prob of Repression by Termination")+
+  xlab("Termination; 1=negotiated settlement")+
   ylab("Probability of Repression") +
   geom_ribbon(alpha=0.15)
 

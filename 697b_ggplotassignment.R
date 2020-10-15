@@ -138,17 +138,13 @@ repressmodeldata$csrepress.r.2 <- case_when(repressmodeldata$csrepress.r %in% c(
 repressmodeldata$csrepress.r.3 <- case_when(repressmodeldata$csrepress.r %in% c("None", "Weak", "Moderate", "Substantial") ~ 1,
                                             repressmodeldata$csrepress.r %in% c("Severe") ~ 0)
 
-repressmodeldata$csrepress.r.4 <- case_when(repressmodeldata$csrepress.r %in% c("None", "Weak", "Moderate", "Substantial", "Severe") ~ 1,
-                                            repressmodeldata$csrepress.r %in% c() ~ 0)
-
 paramodel.0 <- glm(csrepress.r.0 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
 paramodel.1 <- glm(csrepress.r.1 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
 paramodel.2 <- glm(csrepress.r.2 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
 paramodel.3 <- glm(csrepress.r.3 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
-paramodel.4 <- glm(csrepress.r.4 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
 
-paracoefs <- c(paramodel.0$coefficients["vic.r"], paramodel.1$coefficients["vic.r"], paramodel.2$coefficients["vic.r"], paramodel.3$coefficients["vic.r"], paramodel.4$coefficients["vic.r"])
-paranames <- c("None", "Weak", "Moderate", "Substantial", "Severe")
+paracoefs <- c(paramodel.0$coefficients["vic.r"], paramodel.1$coefficients["vic.r"], paramodel.2$coefficients["vic.r"], paramodel.3$coefficients["vic.r"])
+paranames <- c("Up to None", "Up to Weak", "Up to Moderate", "Up to Substantial")
 
 paralleloddscoefs <- data.frame(paranames,paracoefs)
 paralleloddscoefs

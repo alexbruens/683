@@ -141,7 +141,6 @@ repressmodeldata$csrepress.r.3 <- case_when(repressmodeldata$csrepress.r %in% c(
 repressmodeldata$csrepress.r.4 <- case_when(repressmodeldata$csrepress.r %in% c("None", "Weak", "Moderate", "Substantial", "Severe") ~ 1,
                                             repressmodeldata$csrepress.r %in% c() ~ 0)
 
-
 paramodel.0 <- glm(csrepress.r.0 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
 paramodel.1 <- glm(csrepress.r.1 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
 paramodel.2 <- glm(csrepress.r.2 ~ vic.r, data=repressmodeldata, family=binomial("logit"))

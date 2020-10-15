@@ -19,31 +19,31 @@ require(ciTools)
 #csrepression$csrepress_BIRT <- csrepression$v2csreprss
 #is.factor(csrepression$v2csreprss_ord)
 #summary(csrepression$v2csreprss_ord)
-#csrepression$csrepress.r <- factor(csrepression$v2csreprss_ord,
-#                                   labels= c("Severe", "Substantial", "Moderate", "Weak", "None"),
-#                                   ordered = TRUE)
-#csrepression$csrepress.r <- car::recode(csrepression$v2csreprss_ord, "0=4; 1=3; 2=2;3=1;4=0;NA=NA")
+csrepression$csrepress.r <- factor(csrepression$v2csreprss_ord,
+                                   labels= c("Severe", "Substantial", "Moderate", "Weak", "None"),
+                                   ordered = TRUE)
+csrepression$csrepress.r <- car::recode(csrepression$v2csreprss_ord, "0=4; 1=3; 2=2;3=1;4=0;NA=NA")
 #table(csrepression$csrepress.r)
 
-#csrepression$csrepress.r <- factor(csrepression$csrepress.r,
-#                                   labels= c("None", "Weak", "Moderate", "Substantial", "Severe"),
-#                                   ordered = TRUE)
+csrepression$csrepress.r <- factor(csrepression$csrepress.r,
+                                   labels= c("None", "Weak", "Moderate", "Substantial", "Severe"),
+                                   ordered = TRUE)
 #csrepression$csrepress.r.2fac <- car::recode(csrepression$csrepress.r, "4=1;3=1;2=1;5=1;0=0;NA=NA")
 #csrepression$csrepress.r.2fac.numeric <- as.numeric(csrepression$csrepress.r.2fac)
 
 #table(csrepression$gov_v)
 #table(csrepression$rebel_v)
 #table(csrepression$nego_settl)
-#repressmodeldata <- subset(csrepression, peacefailure != 1 | NA,
-#                           select =c(csrepress.r, csrepress.r.2fac, csrepress.r.2fac.numeric, polity2, logpop, physint_lagged, wardur,
-#                                     pts_s_lagged, pts_h_lagged, pts_a_lagged, physint, logbattledeath,
-#                                     v2csreprss, v2csreprss_ord, pko, nego_settl, rebel_v, gov_v, gdplag,
-#                                     pop, polity2, peace_agreement, battledeath, peacefailure, country,
-#                                     year, pko, poptotal, poplog, csrepress_BIRT))
+repressmodeldata <- subset(csrepression, peacefailure != 1 | NA,
+                           select =c(csrepress.r, csrepress.r.2fac, csrepress.r.2fac.numeric, polity2, logpop, physint_lagged, wardur,
+                                     pts_s_lagged, pts_h_lagged, pts_a_lagged, physint, logbattledeath,
+                                     v2csreprss, v2csreprss_ord, pko, nego_settl, rebel_v, gov_v, gdplag,
+                                     pop, polity2, peace_agreement, battledeath, peacefailure, country,
+                                     year, pko, poptotal, poplog, csrepress_BIRT))
 
-#repressmodeldata$vic <- 0
-#repressmodeldata$vic <- as.numeric(repressmodeldata$rebel_v + repressmodeldata$gov_v)
-#repressmodeldata$vic.r <- car::recode(repressmodeldata$vic, "0=1; 1=0; NA=NA")
+repressmodeldata$vic <- 0
+repressmodeldata$vic <- as.numeric(repressmodeldata$rebel_v + repressmodeldata$gov_v)
+repressmodeldata$vic.r <- car::recode(repressmodeldata$vic, "0=1; 1=0; NA=NA")
 #table(repressmodeldata$vic.r)
 
 #table(repressmodeldata$csrepress.r, repressmodeldata$vic)
@@ -117,4 +117,45 @@ ggplot(plot.dat, aes(x=as.factor(vic),
   xlab("settlement")+
   ylab("repression")
 
+
+
+
+#### Ordered Logit Parallel Odds ####
+as.factor(repressmodeldata$csrepress.r)
+
+paramodel <- polr(csrepress.r ~ vic.r, data=repressmodeldata, Hess=TRUE) 
+paramodel %>% summary()
+
+repressmodeldata$csrepress.r.0 <- case_when(repressmodeldata$csrepress.r %in% c("None") ~ 1,
+                                            repressmodeldata$csrepress.r %in% c("Weak", "Moderate", "Substantial", "Severe") ~ 0)
+
+repressmodeldata$csrepress.r.1 <- case_when(repressmodeldata$csrepress.r %in% c("None", "Weak") ~ 1,
+                                            repressmodeldata$csrepress.r %in% c("Moderate", "Substantial", "Severe") ~ 0)
+
+repressmodeldata$csrepress.r.2 <- case_when(repressmodeldata$csrepress.r %in% c("None", "Weak", "Moderate") ~ 1,
+                                            repressmodeldata$csrepress.r %in% c("Substantial", "Severe") ~ 0)
+
+repressmodeldata$csrepress.r.3 <- case_when(repressmodeldata$csrepress.r %in% c("None", "Weak", "Moderate", "Substantial") ~ 1,
+                                            repressmodeldata$csrepress.r %in% c("Severe") ~ 0)
+
+repressmodeldata$csrepress.r.4 <- case_when(repressmodeldata$csrepress.r %in% c("None", "Weak", "Moderate", "Substantial", "Severe") ~ 1,
+                                            repressmodeldata$csrepress.r %in% c() ~ 0)
+
+
+paramodel.0 <- glm(csrepress.r.0 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
+paramodel.1 <- glm(csrepress.r.1 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
+paramodel.2 <- glm(csrepress.r.2 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
+paramodel.3 <- glm(csrepress.r.3 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
+paramodel.4 <- glm(csrepress.r.4 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
+
+paracoefs <- c(paramodel.0$coefficients["vic.r"], paramodel.1$coefficients["vic.r"], paramodel.2$coefficients["vic.r"], paramodel.3$coefficients["vic.r"], paramodel.4$coefficients["vic.r"])
+paranames <- c("None", "Weak", "Moderate", "Substantial", "Severe")
+
+paralleloddscoefs <- data.frame(paranames,paracoefs)
+paralleloddscoefs
+
+require(brant)
+brant(paramodel)
+
+table(repressmodeldata$vic.r, repressmodeldata$csrepress.r)
 

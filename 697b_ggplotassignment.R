@@ -144,7 +144,7 @@ paramodel.2 <- glm(csrepress.r.2 ~ vic.r, data=repressmodeldata, family=binomial
 paramodel.3 <- glm(csrepress.r.3 ~ vic.r, data=repressmodeldata, family=binomial("logit"))
 
 paracoefs <- c(paramodel.0$coefficients["vic.r"], paramodel.1$coefficients["vic.r"], paramodel.2$coefficients["vic.r"], paramodel.3$coefficients["vic.r"])
-paranames <- c("Up to None", "Up to Weak", "Up to Moderate", "Up to Substantial")
+paranames <- c("None", "Weak", "Moderate", "Substantial")
 
 paralleloddscoefs <- data.frame(paranames,paracoefs)
 paralleloddscoefs

@@ -50,10 +50,6 @@ state_avgs <- merge(state_avgs, covid, by="state", all.x=T)
 lm1 <- lm(mean_dem_pct ~ cases + deaths + changepct + registeredPerc, state_avgs)
 summary(lm1)
 
-ggplot(lm1, aes(x=cases, y=bidenmeanvotes))+
-  geom_line(colour="black", alpha=1) +
-  geom_smooth(method="loess") +
-  ylim(0,max(state_avgs$bidenmeanvotes))
 pred.mvrnorm <- mvrnorm(1000, coef(lm1), vcov(lm1))
 nd <- cbind(1, cases=casesv, deaths=deathsv, changepct=changepctv, registeredPerc=registeredPercv)
 pred_mean <- pred.mvrnorm %*% t(nd) %>% plogis() %>% apply(2, mean)
